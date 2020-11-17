@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">CadastroUsuario</string>
+    <string name="hint_nomeUser_cadastro">Nome do Usuário...</string>
+    <string name="title_home">Controle de Usuários</string>
+    <string name="title_cad">Cadastrar Usuário</string>
+    <string name="title_splash">CADASTRO DE USUÁRIOS</string>
+    <string name="btnOK_msgSucesso">OK</string>
+</resources>
