@@ -96,6 +96,7 @@ public class List_usuarios extends AppCompatActivity {
         });
     }
 
+    //CONFIGURANDO FORM PARA O REAPROVEITAMENTO DE TELA
     public void configForm(){
         if (STATUS_FORM.equals("consultar ativos")) {
             getUsuariosAtivos("");
@@ -116,6 +117,7 @@ public class List_usuarios extends AppCompatActivity {
         }
     }
 
+    //BUSCA USUARIOS ATIVOS NO BANCO
     public void getUsuariosAtivos(String nome) {
         Call<List<Usuario>> call = null;
         if (nome.equals("")) {
@@ -147,6 +149,7 @@ public class List_usuarios extends AppCompatActivity {
         });
     }
 
+    //BUSCA USUARIOS DESATIVADOS NO BANCO
     public void getUsuariosDesativos(String nome) {
         Call<List<Usuario>> call = null;
         if (nome.equals("")) {
@@ -178,6 +181,7 @@ public class List_usuarios extends AppCompatActivity {
         });
     }
 
+    //LISTA USUARIOS
     public void listarUsuarios(final List<Usuario> usuarios) {
         AdapterUsuario adapterUsuario = new AdapterUsuario(usuarios);
 
@@ -229,6 +233,7 @@ public class List_usuarios extends AppCompatActivity {
         }));
     }
 
+    //DESATIVA UM USUARIO
     public void desativarUsuario(Long id){
         Call<Boolean> call = usuarioService.desativarUsario(id);
         call.enqueue(new Callback<Boolean>() {
@@ -252,6 +257,7 @@ public class List_usuarios extends AppCompatActivity {
         });
     }
 
+    //ATIVA UM USUARIO
     public void ativarUsuario(Long id){
         Call<Boolean> call = usuarioService.ativarUsario(id);
         call.enqueue(new Callback<Boolean>() {

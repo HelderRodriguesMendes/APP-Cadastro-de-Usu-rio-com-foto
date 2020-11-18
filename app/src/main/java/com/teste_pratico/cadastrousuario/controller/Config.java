@@ -14,6 +14,7 @@ public class Config {
     //TEMPO DE EXECUÇÃO DA TELA SPLASH
     public static final int TIME_SPLASH = 2 * 1000;
 
+    //AJUSTANDO DATA
     public String configDataApp(String data){
         String dataFormatada, DIA = "", MES = "", ANO = "";
 
@@ -42,6 +43,7 @@ public class Config {
         return dataFormatada;
     }
 
+    //AJUSTANDO DATA
     @RequiresApi(api = Build.VERSION_CODES.O)
     public String configDataApi(String data){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/MM/yyyy");
