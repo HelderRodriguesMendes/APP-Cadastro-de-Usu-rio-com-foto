@@ -35,11 +35,17 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         Intent i;
 
-        switch (view.getId()){
-            case R.id.cad_usuario: i = new Intent(this, CadastrarUsuarioActivity.class);
+        switch (view.getId()) {
+            case R.id.cad_usuario:
+                i = new Intent(this, CadastrarUsuarioActivity.class);
                 CadastrarUsuarioActivity.statusForm("cadastrar");
-            startActivity(i);
-            break;
+                startActivity(i);
+                break;
+            case R.id.pesqui_usuario:
+                i = new Intent(this, List_usuarios.class);
+                List_usuarios.statusForm("consultar ativos");
+                startActivity(i);
+                break;
         }
     }
 }

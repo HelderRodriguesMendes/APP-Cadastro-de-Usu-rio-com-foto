@@ -174,7 +174,7 @@ public class CadastrarUsuarioActivity extends AppCompatActivity {
 
     public void salvar(Usuario usuario) {
         UsuarioService usuarioService = URL_BASE_API.baseURL().create(UsuarioService.class);
-        Call<Usuario> call = usuarioService.salvarUsuario(usuario);
+        Call<Usuario> call = usuarioService.cadastrar(usuario);
 
         call.enqueue(new Callback<Usuario>() {
             @Override

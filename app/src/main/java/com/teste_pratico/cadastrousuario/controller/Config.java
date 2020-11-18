@@ -1,6 +1,9 @@
 package com.teste_pratico.cadastrousuario.controller;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.util.Base64;
 
 import androidx.annotation.RequiresApi;
 
@@ -49,5 +52,13 @@ public class Config {
         String pronta = localDate.format(fmt);
 
         return pronta;
+    }
+
+    //EXTRAINDO IMAGEM DO TIPO STRING
+    public Bitmap converteString_Foto(String fotoString){
+        byte[] imagemEmBytes = Base64.decode(fotoString, Base64.DEFAULT);
+        Bitmap imagemDecodificada = BitmapFactory.decodeByteArray(imagemEmBytes, 0, imagemEmBytes.length);
+
+        return imagemDecodificada;
     }
 }

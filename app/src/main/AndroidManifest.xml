@@ -12,8 +12,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".view.CadastrarUsuarioActivity"
-            android:parentActivityName=".view.HomeActivity"></activity>
+        <activity android:name=".view.List_usuarios"></activity>
+        <activity
+            android:name=".view.CadastrarUsuarioActivity"
+            android:parentActivityName=".view.HomeActivity" />
         <activity android:name=".view.HomeActivity" />
         <activity android:name=".view.SplashActivity">
             <intent-filter>
