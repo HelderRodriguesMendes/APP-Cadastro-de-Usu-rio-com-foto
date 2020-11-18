@@ -42,12 +42,16 @@ public class CadastrarUsuarioActivity extends AppCompatActivity {
     private String DATA, TITULO_ALERT, MSG_ALERT, STATUS_ALERT, OPCAO1_ALERT, OPCAO2_ALERT;
     private static String fotoEmString, STATUS_FORM;
     private static byte[] fotoEmBytes;
+    private static Long ID_USUARIO;
     private boolean addFoto = false;
 
     Config config = new Config();
     ApiController URL_BASE_API = new ApiController();
+    Usuario usuario;
 
-    private TextView textViewDataNascimento;
+    UsuarioService usuarioService = URL_BASE_API.baseURL().create(UsuarioService.class);
+
+    private TextView textViewDataNascimento, textViewTitle;
     private EditText editTextNome;
     private ImageView IMAGEVIEW_FOTO;
     private Button button;
@@ -60,13 +64,15 @@ public class CadastrarUsuarioActivity extends AppCompatActivity {
 
         //EXIBE O BOTÃO VOLTAR <--
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        CadastrarUsuarioActivity.this.setTitle(R.string.title_cad);
+        CadastrarUsuarioActivity.this.setTitle(R.string.title_home);
 
         textViewDataNascimento = findViewById(R.id.textViewDataNascimento);
         IMAGEVIEW_FOTO = findViewById(R.id.imageViewFOTO);
         editTextNome = findViewById(R.id.editTextTextPersonName);
-        IMAGEVIEW_FOTO = findViewById(R.id.imageViewFOTO);
+        textViewTitle = findViewById(R.id.textViewTitleCad);
         button = findViewById(R.id.button);
+
+        configForm();
 
         //EXIBE O CALENDARIO PARA ADICIONAR A DATA DE NASCIMENTO
         final Calendar calendar = Calendar.getInstance();
@@ -108,10 +114,30 @@ public class CadastrarUsuarioActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (validarCampus()) {
-                    salvar(preencherObjeto());
+                    if (STATUS_FORM.equals("cadastrar")) {
+                        salvar(preencherObjeto());
+                    } else {
+                        alterar(preencherObjeto());
+                    }
                 }
             }
         });
+    }
+
+    //CONFIGURA O FORM PARA O REAPROVEITAMENTO DE TELA
+    public void configForm() {
+        if (STATUS_FORM.equals("cadastrar")) {
+            textViewTitle.setText(R.string.title_cad);
+
+        } else if (STATUS_FORM.equals("alterar")) {
+            usuario = new Usuario();
+
+            //RECEBENDO OS DADOS VINDOS DA ACTIVITY DE LISTAGEM
+            usuario = getIntent().getExtras().getParcelable("usuario");
+            textViewTitle.setText(R.string.title_alte);
+            preencherCampus(usuario);
+            button.setText("ALTERAR");
+        }
     }
 
     //RECEBE A FOTO TIRADA PELA CAMERA E EXIBE ESSA FOTO NA LETA DE CADASTRO
@@ -148,7 +174,7 @@ public class CadastrarUsuarioActivity extends AppCompatActivity {
         } else if (textViewDataNascimento.getText().toString().equals("")) {
             textViewDataNascimento.setError("Preenchimento Obrigatório");
             Toast.makeText(CadastrarUsuarioActivity.this, "Informe a Data de Nascimento", Toast.LENGTH_SHORT).show();
-        } else if (!addFoto) {
+        } else if (!addFoto && STATUS_FORM.equals("cadastrar")) {
             Toast.makeText(CadastrarUsuarioActivity.this, "Adicione a foto do Usuário", Toast.LENGTH_SHORT).show();
             IMAGEVIEW_FOTO.requestFocus();
         } else {
@@ -165,15 +191,24 @@ public class CadastrarUsuarioActivity extends AppCompatActivity {
         String data = textViewDataNascimento.getText().toString();
         usuario.setDataNascimento(config.configDataApi(data));
         usuario.setFoto(fotoEmString);
-        if(STATUS_FORM.equals("cadastrar")){
-            usuario.setAtivo(true);
+        usuario.setAtivo(true);
+        if (STATUS_FORM.equals("alterar")) {
+            usuario.setId(ID_USUARIO);
         }
 
         return usuario;
     }
 
+    private void preencherCampus(Usuario usuario) {
+        editTextNome.setText(usuario.getNome());
+        textViewDataNascimento.setText(usuario.getDataNascimento());
+        IMAGEVIEW_FOTO.setImageBitmap(config.converteString_Foto(usuario.getFoto()));
+        fotoEmString = usuario.getFoto();
+        ID_USUARIO = usuario.getId();
+    }
+
     public void salvar(Usuario usuario) {
-        UsuarioService usuarioService = URL_BASE_API.baseURL().create(UsuarioService.class);
+
         Call<Usuario> call = usuarioService.cadastrar(usuario);
 
         call.enqueue(new Callback<Usuario>() {
@@ -190,6 +225,26 @@ public class CadastrarUsuarioActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<Usuario> call, Throwable t) {
                 System.out.println("Erro ao salvar: " + t.getMessage());
+
+            }
+        });
+    }
+
+    public void alterar(Usuario usuario) {
+        Call<Usuario> call = usuarioService.alterar(usuario.getId(), usuario);
+        call.enqueue(new Callback<Usuario>() {
+            @Override
+            public void onResponse(Call<Usuario> call, Response<Usuario> response) {
+                if (response.isSuccessful()) {
+                    MSG_ALERT = "Usuário alterado com sucesso";
+                    TITULO_ALERT = "ALTERAR USUÁRIO";
+                    STATUS_ALERT = "alterar";
+                    msgSucesso(TITULO_ALERT, MSG_ALERT, STATUS_ALERT);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Usuario> call, Throwable t) {
 
             }
         });
@@ -212,8 +267,11 @@ public class CadastrarUsuarioActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (STATUS_FORM.equals("cadastrar")) {
-                    fotoEmString = "";
                     Intent intent = new Intent(CadastrarUsuarioActivity.this, HomeActivity.class);
+                    startActivity(intent);
+                } else {
+                    Intent intent = new Intent(CadastrarUsuarioActivity.this, List_usuarios.class);
+                    List_usuarios.statusForm("alterar");
                     startActivity(intent);
                 }
                 alertDialog.dismiss();

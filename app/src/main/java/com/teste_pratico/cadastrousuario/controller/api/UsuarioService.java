@@ -8,6 +8,8 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface UsuarioService {
@@ -23,4 +25,7 @@ public interface UsuarioService {
     //BUSCA USUARIOS ATIVOS POR NOME
     @GET("/usuario/usuariosAtivos_NOME?")
     Call<List<Usuario>> getUsuariosAtivos_NOME(@Query("nome") String nome);
+
+    @PUT("/usuario/alterar/{id}")
+    Call<Usuario> alterar(@Path("id") Long id, @Body Usuario usuario);
 }

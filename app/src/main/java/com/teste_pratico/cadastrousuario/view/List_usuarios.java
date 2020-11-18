@@ -2,16 +2,25 @@ package com.teste_pratico.cadastrousuario.view;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.teste_pratico.cadastrousuario.R;
@@ -36,28 +45,30 @@ public class List_usuarios extends AppCompatActivity {
     private EditText txtNome;
     private TextView tituloList;
     private static String STATUS_FORM;
+    private String TITULO_ALERT, MSG_ALERT, STATUS_ALERT;
 
     List<Usuario> USUARIOS = new ArrayList<>();
-    Config config = new Config();
 
     ApiController URL_BASE_API = new ApiController();
     UsuarioService usuarioService = URL_BASE_API.baseURL().create(UsuarioService.class);
-    Usuario usuario = new Usuario();
+    Usuario usuario;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_usuarios);
 
+        //EXIBE O BOTÃO VOLTAR <--
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         recyclerView = findViewById(R.id.recyclerView);
         txtNome = findViewById(R.id.editTextNome);
         tituloList = findViewById(R.id.txtTituloList);
 
-        if (STATUS_FORM.equals("consultar ativos")) {
-            getUsuariosAtivos("");
-            tituloList.setText("USUÁRIOS CADASTRADOS");
-        }
+        configForm();
+        List_usuarios.this.setTitle(R.string.title_home);
 
+        //EVENTO AO DIGITAR NO EditText
         txtNome.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -66,7 +77,8 @@ public class List_usuarios extends AppCompatActivity {
 
             @Override //Evento ao digitar no EditText
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                String nome = txtNome.getText().toString();
+                String nome = "";
+                nome = txtNome.getText().toString();
                 getUsuariosAtivos(nome);
             }
 
@@ -75,6 +87,16 @@ public class List_usuarios extends AppCompatActivity {
 
             }
         });
+    }
+
+    public void configForm(){
+        if (STATUS_FORM.equals("consultar ativos")) {
+            getUsuariosAtivos("");
+            tituloList.setText("USUÁRIOS CADASTRADOS");
+        } else if (STATUS_FORM.equals("alterar")) {
+            getUsuariosAtivos("");
+            tituloList.setText("ALTERAR USUÁRIO SELECIONADO");
+        }
     }
 
     public void getUsuariosAtivos(String nome) {
@@ -116,12 +138,19 @@ public class List_usuarios extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(adapterUsuario);
 
-        //EVENTO DE CLICK
+        //EVENTO DE CLICK NA LISTA
         recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getApplicationContext(), recyclerView, new RecyclerItemClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
                 if (!STATUS_FORM.equals("consultar ativos")) {
+                    usuario = new Usuario();
                     usuario = USUARIOS.get(position);
+                    if (STATUS_FORM.equals("alterar")) {
+                        TITULO_ALERT = "ALTERAR DADOS";
+                        MSG_ALERT = "Deseja alterar os dados do usuário selecionado?";
+                        STATUS_ALERT = "alterar user ativo";
+                        msgAlert(TITULO_ALERT, MSG_ALERT, STATUS_ALERT);
+                    }
                 }
             }
 
@@ -135,6 +164,51 @@ public class List_usuarios extends AppCompatActivity {
 
             }
         }));
+    }
+
+    //EXIBE UMA MSG DE ESCOLHAS PARA O USUARIO
+    public void msgAlert(final String titulo, String msg, final String status) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(List_usuarios.this, R.style.AlertDialogTheme);
+        View view = LayoutInflater.from(List_usuarios.this).inflate(
+                R.layout.alert_inform, (ConstraintLayout) findViewById(R.id.layoutDialogContainer)
+        );
+        builder.setView(view);
+        ((TextView) view.findViewById(R.id.txtTitle)).setText(titulo);
+        ((TextView) view.findViewById(R.id.txtMessage)).setText(msg);
+
+        ((Button) view.findViewById(R.id.btnYes)).setText("Sim");
+        ((Button) view.findViewById(R.id.btnNo)).setText("Não");
+        ((ImageView) view.findViewById(R.id.imageIcon)).setImageResource(R.drawable.ic_warning);
+
+        final AlertDialog alertDialog = builder.create();
+
+        view.findViewById(R.id.btnYes).setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
+            @Override
+            public void onClick(View view) {
+                if(status.equals("alterar user ativo")){
+                    Intent intent = new Intent(List_usuarios.this, CadastrarUsuarioActivity.class);
+                    intent.putExtra("usuario", usuario);
+                    CadastrarUsuarioActivity.statusForm("alterar");
+                    startActivity(intent);
+                }
+                alertDialog.dismiss();
+            }
+        });
+
+        view.findViewById(R.id.btnNo).setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
+            @Override
+            public void onClick(View view) {
+
+                alertDialog.dismiss();
+            }
+        });
+
+        if (alertDialog.getWindow() != null) {
+            alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
+        }
+        alertDialog.show();
     }
 
     //RECEBE O STATUS DO FORM(LISTAR ATIVOS - LISTAR DESATIVOS)

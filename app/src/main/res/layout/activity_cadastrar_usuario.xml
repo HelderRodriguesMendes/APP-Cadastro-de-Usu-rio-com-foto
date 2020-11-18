@@ -13,7 +13,7 @@
         android:id="@+id/editTextTextPersonName"
         android:layout_width="378dp"
         android:layout_height="54dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="60dp"
         android:ems="10"
         android:hint="@string/hint_nomeUser_cadastro"
         android:inputType="textCapSentences"
@@ -27,9 +27,9 @@
         android:id="@+id/textViewDataNascimento"
         android:layout_width="375dp"
         android:layout_height="45dp"
-        android:layout_marginTop="28dp"
+        android:layout_marginTop="60dp"
         android:gravity="center_vertical"
-        android:hint=" Data de Nascimento"
+        android:hint=" Informe a Data de Nascimento"
         android:textSize="18sp"
         app:drawableLeftCompat="@drawable/data"
         app:layout_constraintEnd_toEndOf="parent"
@@ -56,14 +56,46 @@
         android:id="@+id/imageViewFOTO"
         android:layout_width="121dp"
         android:layout_height="155dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="50dp"
         android:src="@drawable/iconefoto"
         app:civ_border_color="#FF000000"
         app:civ_border_width="2dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewTitleCad"
         tools:ignore="MissingConstraints" />
+
+    <TextView
+        android:id="@+id/textViewTitleCad"
+        android:layout_width="184dp"
+        android:layout_height="20dp"
+        android:layout_marginTop="32dp"
+        android:textColor="@color/dark_gray"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="119dp"
+        android:layout_height="17dp"
+        android:layout_marginBottom="3dp"
+        android:text="Nome do Usuário"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/editTextTextPersonName"
+        app:layout_constraintStart_toStartOf="@+id/editTextTextPersonName" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="137dp"
+        android:layout_height="21dp"
+        android:layout_marginBottom="3dp"
+        android:text="Data de Nascimento"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/textViewDataNascimento"
+        app:layout_constraintStart_toStartOf="@+id/textViewDataNascimento" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

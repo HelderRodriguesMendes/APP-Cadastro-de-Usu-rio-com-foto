@@ -1,11 +1,12 @@
 package com.teste_pratico.cadastrousuario.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 
-public class Usuario implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class Usuario implements Parcelable {
 
     private Long id;
     private String nome;
@@ -14,6 +15,31 @@ public class Usuario implements Serializable {
     private Boolean ativo;
 
     public Usuario() {}
+
+    protected Usuario(Parcel in) {
+        if (in.readByte() == 0) {
+            id = null;
+        } else {
+            id = in.readLong();
+        }
+        nome = in.readString();
+        dataNascimento = in.readString();
+        foto = in.readString();
+        byte tmpAtivo = in.readByte();
+        ativo = tmpAtivo == 0 ? null : tmpAtivo == 1;
+    }
+
+    public static final Creator<Usuario> CREATOR = new Creator<Usuario>() {
+        @Override
+        public Usuario createFromParcel(Parcel in) {
+            return new Usuario(in);
+        }
+
+        @Override
+        public Usuario[] newArray(int size) {
+            return new Usuario[size];
+        }
+    };
 
     public Long getId() {
         return id;
@@ -53,5 +79,24 @@ public class Usuario implements Serializable {
 
     public void setAtivo(Boolean ativo) {
         this.ativo = ativo;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        if (id == null) {
+            parcel.writeByte((byte) 0);
+        } else {
+            parcel.writeByte((byte) 1);
+            parcel.writeLong(id);
+        }
+        parcel.writeString(nome);
+        parcel.writeString(dataNascimento);
+        parcel.writeString(foto);
+        parcel.writeByte((byte) (ativo == null ? 0 : ativo ? 1 : 2));
     }
 }

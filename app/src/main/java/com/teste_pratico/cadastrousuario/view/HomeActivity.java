@@ -46,6 +46,11 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                 List_usuarios.statusForm("consultar ativos");
                 startActivity(i);
                 break;
+            case R.id.edit_usuario:
+                i = new Intent(this, List_usuarios.class);
+                List_usuarios.statusForm("alterar");
+                startActivity(i);
+                break;
         }
     }
 }
