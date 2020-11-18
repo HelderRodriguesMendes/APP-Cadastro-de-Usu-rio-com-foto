@@ -51,6 +51,11 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                 List_usuarios.statusForm("alterar");
                 startActivity(i);
                 break;
+            case R.id.exclu_usuario:
+                i = new Intent(this, List_usuarios.class);
+                List_usuarios.statusForm("excluir");
+                startActivity(i);
+                break;
         }
     }
 }

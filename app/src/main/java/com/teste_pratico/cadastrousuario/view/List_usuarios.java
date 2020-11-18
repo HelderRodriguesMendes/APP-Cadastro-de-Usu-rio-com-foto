@@ -45,7 +45,8 @@ public class List_usuarios extends AppCompatActivity {
     private EditText txtNome;
     private TextView tituloList;
     private static String STATUS_FORM;
-    private String TITULO_ALERT, MSG_ALERT, STATUS_ALERT;
+    private String TITULO_ALERT, MSG_ALERT, STATUS_ALERT, OPCAO1_ALERT, OPCAO2_ALERT;
+    private boolean RESTAURAR = false;
 
     List<Usuario> USUARIOS = new ArrayList<>();
 
@@ -77,9 +78,15 @@ public class List_usuarios extends AppCompatActivity {
 
             @Override //Evento ao digitar no EditText
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
                 String nome = "";
                 nome = txtNome.getText().toString();
-                getUsuariosAtivos(nome);
+
+                if(STATUS_FORM.equals("excluir")){
+                    getUsuariosDesativos(nome);
+                }else{
+                    getUsuariosAtivos(nome);
+                }
             }
 
             @Override
@@ -96,6 +103,16 @@ public class List_usuarios extends AppCompatActivity {
         } else if (STATUS_FORM.equals("alterar")) {
             getUsuariosAtivos("");
             tituloList.setText("ALTERAR USUÁRIO SELECIONADO");
+        }else if(STATUS_FORM.equals("excluir")){
+            getUsuariosAtivos("");
+            tituloList.setText("EXCLUIR USUÁRIO SELECIONADO");
+
+            OPCAO1_ALERT = "Excluir";
+            OPCAO2_ALERT = "Restaurar";
+            TITULO_ALERT = "ATENÇÃO";
+            MSG_ALERT = "Deseja Excluir ou Restaurar os dados de um Usuário";
+            STATUS_ALERT = "excluir restaurar";
+            msgAlert(TITULO_ALERT, MSG_ALERT, STATUS_ALERT, OPCAO1_ALERT, OPCAO2_ALERT);
         }
     }
 
@@ -105,6 +122,37 @@ public class List_usuarios extends AppCompatActivity {
             call = usuarioService.getUsuariosAtivos();
         } else {
             call = usuarioService.getUsuariosAtivos_NOME(nome);
+        }
+
+        call.enqueue(new Callback<List<Usuario>>() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
+            @Override
+            public void onResponse(Call<List<Usuario>> call, Response<List<Usuario>> response) {
+                if (response.isSuccessful()) {
+                    USUARIOS = response.body();
+                    for (Usuario u : USUARIOS) {
+                        LocalDate dt = LocalDate.parse(u.getDataNascimento());
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                        String dataFormatada = dt.format(formatter);
+                        u.setDataNascimento(dataFormatada);
+                    }
+                    listarUsuarios(USUARIOS);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Usuario>> call, Throwable t) {
+
+            }
+        });
+    }
+
+    public void getUsuariosDesativos(String nome) {
+        Call<List<Usuario>> call = null;
+        if (nome.equals("")) {
+            call = usuarioService.getUsuariosDesativados();
+        } else {
+            call = usuarioService.getUsuariosDesativados_NOME(nome);
         }
 
         call.enqueue(new Callback<List<Usuario>>() {
@@ -145,12 +193,27 @@ public class List_usuarios extends AppCompatActivity {
                 if (!STATUS_FORM.equals("consultar ativos")) {
                     usuario = new Usuario();
                     usuario = USUARIOS.get(position);
+
+                    OPCAO1_ALERT = "Sim";
+                    OPCAO2_ALERT = "Não";
+
                     if (STATUS_FORM.equals("alterar")) {
                         TITULO_ALERT = "ALTERAR DADOS";
-                        MSG_ALERT = "Deseja alterar os dados do usuário selecionado?";
+                        MSG_ALERT = "Deseja alterar os dados de " + usuario.getNome() + "?";
                         STATUS_ALERT = "alterar user ativo";
-                        msgAlert(TITULO_ALERT, MSG_ALERT, STATUS_ALERT);
+
+                    }else if (STATUS_FORM.equals("excluir")) {
+                        if(!RESTAURAR){
+                            TITULO_ALERT = "EXCLUIR DADOS";
+                            MSG_ALERT = "Deseja excluir os dados de " + usuario.getNome() + "?";
+                            STATUS_ALERT = "excluir user";
+                        }else{
+                            TITULO_ALERT = "RESTAURAR DADOS";
+                            MSG_ALERT = "Deseja restaurar os dados de " + usuario.getNome() + "?";
+                            STATUS_ALERT = "restaurar";
+                        }
                     }
+                    msgAlert(TITULO_ALERT, MSG_ALERT, STATUS_ALERT, OPCAO1_ALERT, OPCAO2_ALERT);
                 }
             }
 
@@ -166,8 +229,87 @@ public class List_usuarios extends AppCompatActivity {
         }));
     }
 
+    public void desativarUsuario(Long id){
+        Call<Boolean> call = usuarioService.desativarUsario(id);
+        call.enqueue(new Callback<Boolean>() {
+            @Override
+            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                if(response.isSuccessful()){
+                    boolean ok = response.body();
+                    if(ok){
+                        TITULO_ALERT = "EXCLUIR USUÁRIO";
+                        MSG_ALERT = "EXCLUSÃO REALIZADA COM SUCESSO";
+                        STATUS_ALERT = "excluir";
+                        msgSucesso(TITULO_ALERT, MSG_ALERT, STATUS_ALERT);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Boolean> call, Throwable t) {
+
+            }
+        });
+    }
+
+    public void ativarUsuario(Long id){
+        Call<Boolean> call = usuarioService.ativarUsario(id);
+        call.enqueue(new Callback<Boolean>() {
+            @Override
+            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                if(response.isSuccessful()){
+                    boolean ok = response.body();
+                    if(ok){
+                        TITULO_ALERT = "RESTAURAR USUÁRIO";
+                        MSG_ALERT = "Usuário restaurado COM SUCESSO";
+                        STATUS_ALERT = "restaurar";
+                        msgSucesso(TITULO_ALERT, MSG_ALERT, STATUS_ALERT);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Boolean> call, Throwable t) {
+
+            }
+        });
+    }
+
+    public void msgSucesso(String titulo, String msg, final String status) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(List_usuarios.this, R.style.AlertDialogTheme);
+        View view = LayoutInflater.from(List_usuarios.this).inflate(
+                R.layout.layout_success_dialog, (ConstraintLayout) findViewById(R.id.layoutDialogContainer)
+        );
+        builder.setView(view);
+        ((TextView) view.findViewById(R.id.txtTitle)).setText(titulo);
+        ((TextView) view.findViewById(R.id.txtMessage)).setText(msg);
+        ((Button) view.findViewById(R.id.btnAction)).setText(getResources().getString(R.string.btnOK_msgSucesso));
+        ((ImageView) view.findViewById(R.id.imageIcon)).setImageResource(R.drawable.ic_success);
+
+        final AlertDialog alertDialog = builder.create();
+
+        view.findViewById(R.id.btnAction).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(status.equals("excluir")){
+                    getUsuariosAtivos("");
+                }else{
+                    getUsuariosDesativos("");
+                }
+
+                alertDialog.dismiss();
+            }
+        });
+
+        if (alertDialog.getWindow() != null) {
+            alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
+        }
+
+        alertDialog.show();
+    }
+
     //EXIBE UMA MSG DE ESCOLHAS PARA O USUARIO
-    public void msgAlert(final String titulo, String msg, final String status) {
+    public void msgAlert(final String titulo, String msg, final String status, String Opicao1, String opcao2) {
         AlertDialog.Builder builder = new AlertDialog.Builder(List_usuarios.this, R.style.AlertDialogTheme);
         View view = LayoutInflater.from(List_usuarios.this).inflate(
                 R.layout.alert_inform, (ConstraintLayout) findViewById(R.id.layoutDialogContainer)
@@ -176,8 +318,8 @@ public class List_usuarios extends AppCompatActivity {
         ((TextView) view.findViewById(R.id.txtTitle)).setText(titulo);
         ((TextView) view.findViewById(R.id.txtMessage)).setText(msg);
 
-        ((Button) view.findViewById(R.id.btnYes)).setText("Sim");
-        ((Button) view.findViewById(R.id.btnNo)).setText("Não");
+        ((Button) view.findViewById(R.id.btnYes)).setText(Opicao1);
+        ((Button) view.findViewById(R.id.btnNo)).setText(opcao2);
         ((ImageView) view.findViewById(R.id.imageIcon)).setImageResource(R.drawable.ic_warning);
 
         final AlertDialog alertDialog = builder.create();
@@ -191,6 +333,12 @@ public class List_usuarios extends AppCompatActivity {
                     intent.putExtra("usuario", usuario);
                     CadastrarUsuarioActivity.statusForm("alterar");
                     startActivity(intent);
+                }else if(status.equals("excluir user")){
+                    desativarUsuario(usuario.getId());
+                }else if(status.equals("excluir restaurar")){
+                    getUsuariosAtivos("");
+                }else if(status.equals("restaurar")){
+                    ativarUsuario(usuario.getId());
                 }
                 alertDialog.dismiss();
             }
@@ -200,7 +348,11 @@ public class List_usuarios extends AppCompatActivity {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View view) {
-
+                if(status.equals("excluir restaurar")){
+                    getUsuariosDesativos("");
+                    tituloList.setText("RESTAURAR DADOS SELECIONADOS");
+                    RESTAURAR = true;
+                }
                 alertDialog.dismiss();
             }
         });

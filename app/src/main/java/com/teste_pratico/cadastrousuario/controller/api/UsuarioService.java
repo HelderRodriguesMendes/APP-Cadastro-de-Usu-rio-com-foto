@@ -28,4 +28,18 @@ public interface UsuarioService {
 
     @PUT("/usuario/alterar/{id}")
     Call<Usuario> alterar(@Path("id") Long id, @Body Usuario usuario);
+
+    @PUT("/usuario/desativar/{id}")
+    Call<Boolean> desativarUsario(@Path("id") Long id);
+
+    //BUSCA TODOS OS USUARIOS DESATIVADOS
+    @GET("/usuario/usuariosDesativados")
+    Call<List<Usuario>> getUsuariosDesativados();
+
+    //BUSCA USUARIOS DESATIVADOS POR NOME
+    @GET("/usuario/usuariosDesativados_Nome?")
+    Call<List<Usuario>> getUsuariosDesativados_NOME(@Query("nome") String nome);
+
+    @PUT("/usuario/ativar/{id}")
+    Call<Boolean> ativarUsario(@Path("id") Long id);
 }

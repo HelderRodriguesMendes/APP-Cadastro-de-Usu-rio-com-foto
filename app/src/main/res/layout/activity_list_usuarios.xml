@@ -9,12 +9,13 @@
 
     <TextView
         android:id="@+id/txtTituloList"
-        android:layout_width="231dp"
-        android:layout_height="22dp"
+        android:layout_width="357dp"
+        android:layout_height="25dp"
         android:layout_marginTop="32dp"
         android:textColor="@color/dark_gray"
         android:textSize="18sp"
         android:textStyle="bold"
+        android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
