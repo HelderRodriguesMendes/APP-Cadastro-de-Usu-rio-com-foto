@@ -144,22 +144,52 @@ public class CadastrarUsuarioActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent dados) {
         super.onActivityResult(requestCode, resultCode, dados);
         if (requestCode == 1) {
-            try {
-                //RECEBENDO A FOTO
-                Bitmap fotoTiradaNaCamera = (Bitmap) dados.getExtras().get("data");
+            if(resultCode == RESULT_OK){
+                try {
+                    //RECEBENDO A FOTO
+                    Bitmap fotoTiradaNaCamera = (Bitmap) dados.getExtras().get("data");
 
-                //EXIBINDO A FOTO NA TELA
-                IMAGEVIEW_FOTO.setImageBitmap(fotoTiradaNaCamera);
+                    //EXIBINDO A FOTO NA TELA
+                    IMAGEVIEW_FOTO.setImageBitmap(fotoTiradaNaCamera);
 
-                ByteArrayOutputStream streamFotoEmBytes = new ByteArrayOutputStream();
+                    ByteArrayOutputStream streamFotoEmBytes = new ByteArrayOutputStream();
 
-                //TRANFORMANDO A FOTO EM PNG E ARMAZENDANDO ELA NO streamFotoEmBytes
-                fotoTiradaNaCamera.compress(Bitmap.CompressFormat.PNG, 70, streamFotoEmBytes);
-                fotoEmBytes = streamFotoEmBytes.toByteArray();
-                fotoEmString = Base64.encodeToString(fotoEmBytes, Base64.DEFAULT);
+                    //TRANFORMANDO A FOTO EM PNG E ARMAZENDANDO ELA NO streamFotoEmBytes
+                    fotoTiradaNaCamera.compress(Bitmap.CompressFormat.PNG, 70, streamFotoEmBytes);
+                    fotoEmBytes = streamFotoEmBytes.toByteArray();
+                    fotoEmString = Base64.encodeToString(fotoEmBytes, Base64.DEFAULT);
 
-            } catch (Exception e) {
+                } catch (Exception e) {
 
+                }
+            }else{
+                IMAGEVIEW_FOTO.setImageResource(R.drawable.iconefoto);
+                fotoEmString = "";
+            }
+
+            //PEGANDO IMAGEM DA GALERIA
+        } else if (requestCode == 2) {
+            if(resultCode == RESULT_OK){
+                try {
+                    //RECEBENDO A FOTO
+                    Bitmap fotoTiradaNaCamera = (Bitmap) dados.getExtras().get("data");
+
+                    //EXIBINDO A FOTO NA TELA
+                    IMAGEVIEW_FOTO.setImageBitmap(fotoTiradaNaCamera);
+
+                    ByteArrayOutputStream streamFotoEmBytes = new ByteArrayOutputStream();
+
+                    //TRANFORMANDO A FOTO EM PNG E ARMAZENDANDO ELA NO streamFotoEmBytes
+                    fotoTiradaNaCamera.compress(Bitmap.CompressFormat.PNG, 70, streamFotoEmBytes);
+                    fotoEmBytes = streamFotoEmBytes.toByteArray();
+                    fotoEmString = Base64.encodeToString(fotoEmBytes, Base64.DEFAULT);
+
+                } catch (Exception e) {
+
+                }
+            }else{
+                IMAGEVIEW_FOTO.setImageResource(R.drawable.iconefoto);
+                fotoEmString = "";
             }
         }
     }
@@ -322,6 +352,11 @@ public class CadastrarUsuarioActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (status.equals("foto")) {
                     addFoto = true;
+
+                    //ACESSANDO GALERIA PARA SELECIONAR FOTO
+                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                    intent.setType("image/*");
+                    startActivityForResult(intent, 2);
                 }
                 alertDialog.dismiss();
             }
